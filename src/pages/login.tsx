@@ -1,8 +1,12 @@
+import { login } from "@/redux/slice";
 import router from "next/router";
 import { useCallback, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 export const Login = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+
+	const dispatch = useDispatch();
 
 	const handleSubmit = useCallback(
 		async (event: React.FormEvent<HTMLFormElement>) => {
@@ -20,6 +24,7 @@ export const Login = () => {
 				.then((response) => {
 					if (response.status === 200) {
 						router.push("/dashboard");
+						dispatch(login());
 					}
 				})
 				.catch((error) => {
