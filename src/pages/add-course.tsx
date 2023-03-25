@@ -1,9 +1,11 @@
 import Header from "@/components/Header";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useCreateCourseMutation } from "./api/courseService";
 
 export const AddCourse = () => {
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
+	const [create, { isLoading: isCreateLoading }] = useCreateCourseMutation();
 
 	const handleCourseNameChange = (
 		event: React.ChangeEvent<HTMLInputElement>
@@ -17,26 +19,18 @@ export const AddCourse = () => {
 		setDescription(event.target.value);
 	};
 
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-
-		fetch("http://localhost:3000/api/addCourse", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				name,
-				description,
-			}),
-		}).then((response) => {
-			if (response.ok) {
-				alert("Course added successfully!");
-			} else {
+	const createCourse = useCallback(
+		async (event: React.FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
+			const result = await create({ id: 0, name, description });
+			if (!result) {
 				alert("Something went wrong!");
+			} else {
+				alert("Course created successfully!");
 			}
-		});
-	};
+		},
+		[name, description, create]
+	);
 
 	return (
 		<div className="">
@@ -44,7 +38,7 @@ export const AddCourse = () => {
 			<div className="flex flex-col justify-center items-center h-screen bg-gray-300">
 				<form
 					className="w-full md:w-1/2 lg:w-1/3 bg-white shadow-md rounded-md px-8 pt-6 pb-8 mb-4"
-					onSubmit={(event) => handleSubmit(event)}>
+					onSubmit={(event) => createCourse(event)}>
 					<div className="mb-4">
 						<label
 							htmlFor="courseName"

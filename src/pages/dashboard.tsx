@@ -1,7 +1,12 @@
 import Header from "@/components/Header";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+	useDeleteCourseMutation,
+	useGetAllCoursesQuery,
+	useUpdateCourseMutation,
+} from "./api/courseService";
 
 // Verileri tutmak için bir array oluşturuyoruz
 interface Course {
@@ -13,9 +18,14 @@ interface Course {
 export const Dashboard = () => {
 	// State Hook'larını kullanarak component'in state'ini oluşturuyoruz
 	const [courses, setCourses] = useState<Array<Course>>([]);
+	const [name, setName] = useState("");
+	const [description, setDescription] = useState("");
 	const [showPopup, setShowPopup] = useState(false);
 	const [isEditing, setIsEditing] = useState(false);
-	const [selectedCourse, setSelectedCourse] = useState<Array<Course>>([]);
+	const [selectedCourse, setSelectedCourse] = useState<Course>();
+	const list = useGetAllCoursesQuery();
+	const [deleteCourse, { isLoading: isDeleteLoading }] =
+		useDeleteCourseMutation();
 
 	const { isLoggedin } = useSelector((state: any) => state.auth);
 
@@ -25,10 +35,13 @@ export const Dashboard = () => {
 			const response = await fetch("http://localhost:3000/api/getAllCourses");
 			const data = await response.json();
 			console.log("asdfas", data);
-			setCourses(data.data);
+			if (data) {
+				setCourses(data.data);
+			}
 		};
 		fetchData();
-	}, []);
+	}, [courses]);
+
 	const handleEdit = (course: Course) => {
 		setShowPopup(true);
 		setSelectedCourse(course);
@@ -43,8 +56,8 @@ export const Dashboard = () => {
 			},
 			body: JSON.stringify({
 				id: course.id,
-				name: course.name,
-				description: course.description,
+				name: name,
+				description: description,
 			}),
 		}).then((response) => {
 			if (response.ok) {
@@ -158,6 +171,7 @@ export const Dashboard = () => {
 											type="text"
 											placeholder="Kurs Adı"
 											defaultValue={selectedCourse?.name}
+											onChange={(e) => setName(e.target.value)}
 										/>
 									</div>
 									<div className="mb-6">
@@ -170,7 +184,8 @@ export const Dashboard = () => {
 											className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
 											id="description"
 											placeholder="Açıklama"
-											defaultValue={selectedCourse.description}
+											defaultValue={selectedCourse?.description}
+											onChange={(e) => setDescription(e.target.value)}
 										/>
 										<p className="text-gray-600 text-xs italic">
 											Kısa bir açıklama giriniz.
@@ -180,7 +195,11 @@ export const Dashboard = () => {
 										<button
 											className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
 											type="button"
-											onClick={() => updateCourse(selectedCourse)}>
+											onClick={() => {
+												if (selectedCourse) {
+													updateCourse(selectedCourse);
+												}
+											}}>
 											Kursu Güncelle
 										</button>
 									</div>
