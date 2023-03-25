@@ -13,6 +13,7 @@ export default async function handler(
 	res: NextApiResponse
 ) {
 	if (req.method === "GET") {
+		res.setHeader("Access-Control-Allow-Origin", "*");
 		try {
 			const { data, error } = await getAllCourses();
 

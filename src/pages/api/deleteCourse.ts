@@ -8,8 +8,8 @@ export default async function handler(
 	res: NextApiResponse
 ) {
 	if (req.method === "DELETE") {
+		res.setHeader("Access-Control-Allow-Origin", "*");
 		const { id } = req.body;
-
 		const { data, error } = await supabase
 			.from("courses")
 			.delete()

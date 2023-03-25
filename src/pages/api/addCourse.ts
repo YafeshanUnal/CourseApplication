@@ -1,6 +1,5 @@
 import CreateSupabase from "@/utils";
 import { NextApiRequest, NextApiResponse } from "next";
-
 const supabase = CreateSupabase();
 
 export default async function handler(
@@ -8,6 +7,7 @@ export default async function handler(
 	res: NextApiResponse
 ) {
 	if (req.method === "POST") {
+		res.setHeader("Access-Control-Allow-Origin", "*");
 		const { name, description } = req.body;
 		const { data, error } = await supabase
 			.from("courses")

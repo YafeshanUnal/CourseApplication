@@ -21,6 +21,7 @@ export default async function handler(
 	res: NextApiResponse
 ) {
 	if (req.method === "PUT") {
+		res.setHeader("Access-Control-Allow-Origin", "*");
 		try {
 			const { id, newName, newDescription } = req.body;
 			const { data, error } = await updateCourse(id, newName, newDescription);
